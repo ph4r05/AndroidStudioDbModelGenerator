@@ -1,0 +1,94 @@
+<!--
+/*
+** Copyright (C) 2013 Michał Charmas (http://blog.charmas.pl)
+** Copyright (C) 2015 Dusan Klinec ph4r05
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<idea-plugin version="4">
+    <id>net.phonex.intellij.android.dbmodel</id>
+    <name>Android Parcelable and DB model code generator.</name>
+    <version>0.7</version>
+    <vendor email="support@phone-x.net" url="http://www.phone-x.net">PhoneX</vendor>
+
+    <description><![CDATA[
+            Plugin which generates Android Parcelable boilerplate code for you.
+            Based on <i>Android Parcelable code generator</i> by <i>Michal Charmas</i>.
+      ]]></description>
+
+    <change-notes><![CDATA[
+            ]]>
+    </change-notes>
+
+    <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="123.72"/>
+
+    <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+    <project-components>
+        <!-- Add your project components here -->
+    </project-components>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="generateParcelableNew" class="net.phonex.intellij.android.dbmodel.ParcelableAction"
+                text="Parcelable"
+                description="Generates Android Parcelable based on class fields">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <action id="generateFields" class="net.phonex.intellij.android.dbmodel.FieldsAction"
+                text="DB fields"
+                description="Generates Android DB model fields">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <action id="generateFullProjection" class="net.phonex.intellij.android.dbmodel.FullProjectionAction"
+                text="DB full projection"
+                description="Generates Android DB model full projection field">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <action id="generateCreateTable" class="net.phonex.intellij.android.dbmodel.CreateTableAction"
+                text="createTable"
+                description="Generates Android DB model createTable field">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <action id="generateCreateFromCursor" class="net.phonex.intellij.android.dbmodel.CreateFromCursorAction"
+                text="createFromCursor"
+                description="Generates Android DB model createFromCursor method">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+        <action id="generateGetDbContentValues" class="net.phonex.intellij.android.dbmodel.GetDbContentValuesAction"
+                text="getDbContentValues"
+                description="Generates Android DB model getDbContentValues method">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+</idea-plugin>
