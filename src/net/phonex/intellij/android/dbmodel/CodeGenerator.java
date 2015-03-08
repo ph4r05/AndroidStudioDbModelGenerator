@@ -20,6 +20,9 @@ import com.google.common.base.CaseFormat;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import net.phonex.intellij.android.dbmodel.typeserializers.*;
+import net.phonex.intellij.android.dbmodel.util.FieldDef;
+import net.phonex.intellij.android.dbmodel.util.NewFieldRecord;
+import net.phonex.intellij.android.dbmodel.util.PsiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,18 +155,37 @@ public class CodeGenerator {
         PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
         JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
 
-        List<String> fields = new ArrayList<String>();
-        fields.add("public static final String TABLE = \""+mClass.getName()+"\"; // TODO: FIXME: fixThis");
-
+        List<NewFieldRecord> newFields = new ArrayList<NewFieldRecord>();
+        newFields.add(new NewFieldRecord("TABLE", mClass.getName(), "TODO: verify"));
         for (PsiField field : mFields) {
             String fieldName = getFieldName(field.getName());
-            String curField = "public static final String "+fieldName+" = \""+field.getName()+"\";";
-            fields.add(curField);
+            newFields.add(new NewFieldRecord(fieldName, field.getName()));
         }
 
-        for (String field : fields) {
-            PsiField curField = elementFactory.createFieldFromText(field, mClass);
-            styleManager.shortenClassReferences(addAsLast(curField));
+        PsiElement prevField = null;
+        for (NewFieldRecord newField : newFields) {
+            // Find if field is already present in file.
+            FieldDef prevFieldImpl = PsiUtils.findField(mClass, newField.name);
+            if (prevFieldImpl == null){
+                PsiField curField  = elementFactory.createFieldFromText(newField.decl, mClass);
+                PsiElement element = prevField == null ? addAsLast(curField) : mClass.addAfter(curField, prevField);
+                prevField = styleManager.shortenClassReferences(element);
+                continue;
+            } else {
+                prevField = prevFieldImpl.field;
+            }
+
+            // Present, do we have exact match of the values?
+            final String valueInitializer = "\"" + newField.value + "\"";
+            if (newField.value.equals(prevFieldImpl.initializer) || valueInitializer.equals(prevFieldImpl.initializer)){
+                continue;
+            }
+
+            // Present and value differs, add anyway, but under previous field.
+            newField.addComment("TODO: verify");
+            PsiField curField  = elementFactory.createFieldFromText(newField.decl, mClass);
+            PsiElement element = prevField == null ? addAsLast(curField) : mClass.addAfter(curField, prevField);
+            prevField = styleManager.shortenClassReferences(element);
         }
     }
 
@@ -183,8 +205,10 @@ public class CodeGenerator {
         }
         sb.append("\n};\n");
 
+        FieldDef prevField = PsiUtils.findField(mClass, "FULL_PROJECTION");
         PsiField projectionField = elementFactory.createFieldFromText(sb.toString(), mClass);
-        styleManager.shortenClassReferences(addAsLast(projectionField));
+        PsiElement element       = prevField == null ? addAsLast(projectionField) : mClass.addAfter(projectionField, prevField.field);
+        styleManager.shortenClassReferences(element);
     }
 
     public void generateCreateTable() {
@@ -225,8 +249,10 @@ public class CodeGenerator {
 
         sb.append("+ \");\";\n");
 
+        FieldDef prevField = PsiUtils.findField(mClass, "CREATE_TABLE");
         PsiField projectionField = elementFactory.createFieldFromText(sb.toString(), mClass);
-        styleManager.shortenClassReferences(addAsLast(projectionField));
+        PsiElement element       = prevField == null ? addAsLast(projectionField) : mClass.addAfter(projectionField, prevField.field);
+        styleManager.shortenClassReferences(element);
     }
 
     public void generateCreateFromCursor() {
@@ -264,8 +290,10 @@ public class CodeGenerator {
 
         sb.append("}\n}\n");
 
-        PsiMethod projectionField = elementFactory.createMethodFromText(sb.toString(), mClass);
-        styleManager.shortenClassReferences(addAsLast(projectionField));
+        PsiMethod prevMethod = PsiUtils.findMethod(mClass, "createFromCursor", "android.database.Cursor");
+        PsiMethod method     = elementFactory.createMethodFromText(sb.toString(), mClass);
+        PsiElement element   = prevMethod == null ? addAsLast(method) : mClass.addAfter(method, prevMethod);
+        styleManager.shortenClassReferences(element);
     }
 
     public void generateGetDbContentValues() {
@@ -297,9 +325,10 @@ public class CodeGenerator {
 
         sb.append("return args;\n}");
 
-        PsiMethod projectionField = elementFactory.createMethodFromText(sb.toString(), mClass);
-        styleManager.shortenClassReferences(addAsLast(projectionField));
-
+        PsiMethod prevMethod = PsiUtils.findMethod(mClass, "getDbContentValues");
+        PsiMethod method     = elementFactory.createMethodFromText(sb.toString(), mClass);
+        PsiElement element   = prevMethod == null ? addAsLast(method) : mClass.addAfter(method, prevMethod);
+        styleManager.shortenClassReferences(element);
     }
 
     private String rightPad(String name, int desiredSize){

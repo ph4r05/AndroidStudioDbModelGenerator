@@ -112,4 +112,59 @@ final public class PsiUtils {
 
         return type.getCanonicalText();
     }
+
+    public static PsiElement addLast(PsiElement elem, PsiElement where){
+        return where.addBefore(elem, where.getLastChild());
+    }
+
+    public static PsiMethod findMethod(PsiClass cls, String methodName, String... arguments) {
+        if (cls == null){
+            return null;
+        }
+
+        // Maybe there's an easier way to do this with mClass.findMethodBySignature(), but I'm not an expert on Psi*
+        PsiMethod[] methods = cls.findMethodsByName(methodName, false);
+        for (PsiMethod method : methods) {
+            PsiParameterList parameterList = method.getParameterList();
+
+            if (parameterList.getParametersCount() == arguments.length) {
+                boolean shouldReturn = true;
+
+                PsiParameter[] parameters = parameterList.getParameters();
+
+                for (int i = 0; i < arguments.length; i++) {
+                    if (!parameters[i].getType().getCanonicalText().equals(arguments[i])) {
+                        shouldReturn = false;
+                    }
+                }
+
+                if (shouldReturn) {
+                    return method;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static FieldDef findField(PsiClass cls, String fieldName){
+        if (cls == null){
+            return null;
+        }
+
+        PsiField field = cls.findFieldByName(fieldName, true);
+        if (field == null){
+            return null;
+        }
+
+        String initializerString = null;
+        final PsiExpression initializer = field.getInitializer();
+        if (initializer instanceof PsiLiteralExpression){
+            final PsiLiteralExpression itext = (PsiLiteralExpression) initializer;
+            initializerString = itext.getText();
+        }
+
+        return new FieldDef(field.getName(), initializerString, field);
+    }
+
 }

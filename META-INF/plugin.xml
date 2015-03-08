@@ -69,19 +69,19 @@
         </action>
 
         <action id="generateCreateTable" class="net.phonex.intellij.android.dbmodel.CreateTableAction"
-                text="createTable"
+                text="createTable()"
                 description="Generates Android DB model createTable field">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
 
         <action id="generateCreateFromCursor" class="net.phonex.intellij.android.dbmodel.CreateFromCursorAction"
-                text="createFromCursor"
+                text="createFromCursor()"
                 description="Generates Android DB model createFromCursor method">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
 
         <action id="generateGetDbContentValues" class="net.phonex.intellij.android.dbmodel.GetDbContentValuesAction"
-                text="getDbContentValues"
+                text="getDbContentValues()"
                 description="Generates Android DB model getDbContentValues method">
             <add-to-group group-id="GenerateGroup" anchor="last"/>
         </action>
